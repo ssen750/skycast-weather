@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#182848">
+<title>SkyCast — Modern Weather</title>
+<style>
+:root{--bg1:#102a43;--bg2:#081421;--card:rgba(255,255,255,.105);--line:rgba(255,255,255,.16);--text:#fff;--muted:rgba(255,255,255,.68);--accent:#9bd2ff}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:var(--text);background:radial-gradient(circle at 15% 5%,#38bdf8 0,transparent 28%),radial-gradient(circle at 90% 12%,#8b5cf6 0,transparent 27%),linear-gradient(145deg,var(--bg1),var(--bg2));padding:20px;transition:.4s}.light{--bg1:#dbeafe;--bg2:#eef2ff;--card:rgba(255,255,255,.5);--line:rgba(15,23,42,.12);--text:#0f172a;--muted:rgba(15,23,42,.64);--accent:#2563eb}.app{max-width:1080px;margin:auto;animation:contentIn .65s ease both}@keyframes contentIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}.brand{font-size:24px;font-weight:800;letter-spacing:-.4px}.brand span{opacity:.6;font-weight:600}.search{display:flex;gap:8px;margin-bottom:13px}.search input{flex:1;padding:14px 16px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.09);color:var(--text);outline:none;font-size:16px}.search input::placeholder{color:var(--muted)}.btn{border:1px solid var(--line);background:rgba(255,255,255,.1);color:var(--text);border-radius:14px;padding:10px 14px;font-size:14px;cursor:pointer}.btn:hover{background:rgba(255,255,255,.2)}.hero,.card{border:1px solid var(--line);background:var(--card);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 18px 48px rgba(0,0,0,.14);border-radius:22px}.hero{padding:24px;position:relative;overflow:hidden}.hero:after{content:"";position:absolute;width:180px;height:180px;border-radius:50%;right:-70px;top:-80px;background:rgba(255,255,255,.08);filter:blur(2px)}.place{font-size:19px;font-weight:750}.sub{color:var(--muted);font-size:13px;margin-top:4px}.mainweather{display:flex;justify-content:space-between;align-items:center;margin-top:10px}.temp{font-size:74px;font-weight:800;letter-spacing:-5px;line-height:1}.condition{font-size:18px}.bigicon{font-size:74px;filter:drop-shadow(0 8px 18px rgba(0,0,0,.15));animation:float 3s ease-in-out infinite}@keyframes float{50%{transform:translateY(-7px)}}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}.stat{padding:14px;border:1px solid var(--line);border-radius:18px;background:rgba(0,0,0,.08)}.stat b{display:block;font-size:16px;margin-top:6px}.label{font-size:11px;color:var(--muted)}.section{margin:22px 2px 9px;font-size:18px;font-weight:800}.hours{display:flex;gap:9px;overflow:auto;padding-bottom:3px}.hour{min-width:88px;text-align:center;padding:14px 8px;border:1px solid var(--line);background:var(--card);border-radius:18px}.hour .ico{height:38px;margin:7px 0}.hour .minimal-weather-icon{transform:scale(.82)}.day{padding:14px 8px;text-align:center;border:1px solid var(--line);background:var(--card);border-radius:18px}.days{display:grid;grid-template-columns:repeat(7,1fr);gap:9px}.day .ico{height:38px;margin:7px 0}.day .minimal-weather-icon{transform:scale(.82)}.rain{font-size:11px;color:var(--accent);margin-top:7px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.card{padding:18px}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.metric{padding:13px;border-radius:16px;border:1px solid var(--line);background:rgba(0,0,0,.07)}.metric b{display:block;font-size:17px;margin-top:4px}.chart{height:155px;width:100%;display:block}.saved{display:flex;gap:8px;flex-wrap:wrap}.footer{color:var(--muted);font-size:11px;text-align:center;margin:22px}.msg{min-height:18px;color:#fecaca;font-size:13px}.light .msg{color:#b91c1c}@media(max-width:750px){body{padding:12px}.stats{grid-template-columns:repeat(2,1fr)}.days{grid-template-columns:repeat(4,1fr)}.grid2{grid-template-columns:1fr}.temp{font-size:60px}.bigicon{font-size:62px}}@media(max-width:480px){.days{grid-template-columns:repeat(2,1fr)}.top .btn{padding:9px}.metrics{grid-template-columns:repeat(2,1fr)}}
+
+#ambientWeather{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;transition:opacity 1s}
+.ambient-sun{position:absolute;right:8%;top:3%;width:210px;height:210px;border-radius:50%;background:radial-gradient(circle,rgba(255,235,150,.42),rgba(255,210,90,.1) 40%,transparent 70%);opacity:0;animation:pulse 6s ease-in-out infinite}.sunny .ambient-sun{opacity:1}
+@keyframes pulse{50%{transform:scale(1.08)}}
+.ambient-cloud{position:absolute;width:230px;height:52px;border-radius:60px;background:rgba(255,255,255,.08);opacity:0}.ambient-cloud:before,.ambient-cloud:after{content:"";position:absolute;border-radius:50%;background:inherit}.ambient-cloud:before{width:80px;height:80px;left:35px;top:-35px}.ambient-cloud:after{width:105px;height:105px;right:25px;top:-48px}
+.cloudy .ambient-cloud,.rainy .ambient-cloud{opacity:.65}.c1{top:18%;left:-260px;animation:c1 42s linear infinite}.c2{top:35%;right:-260px;animation:c2 50s linear infinite}@keyframes c1{to{transform:translateX(calc(100vw + 550px))}}@keyframes c2{to{transform:translateX(calc(-100vw - 550px))}}
+.ambient-rain{position:absolute;inset:0;opacity:0;background-image:repeating-linear-gradient(110deg,transparent 0 25px,rgba(186,230,253,.16) 26px 27px,transparent 28px 52px);background-size:90px 130px;animation:rain .9s linear infinite}.rainy .ambient-rain{opacity:.55}@keyframes rain{to{background-position:0 130px}}
+.ambient-stars{position:absolute;inset:0;opacity:0;background-image:radial-gradient(circle,rgba(255,255,255,.55) 1px,transparent 2px);background-size:100px 100px}.night .ambient-stars{opacity:.3;animation:twinkle 5s ease-in-out infinite}@keyframes twinkle{50%{opacity:.12}}
+.minimal-weather-icon{display:inline-block;width:30px;height:30px;position:relative;vertical-align:middle;color:currentColor}
+.minimal-weather-icon.sun{border:1.7px solid currentColor;border-radius:50%;box-shadow:0 0 0 5px rgba(255,255,255,.035)}
+.minimal-weather-icon.cloud,.minimal-weather-icon.rain{border:1.7px solid currentColor;border-radius:14px;width:31px;height:15px;margin-top:8px}
+.minimal-weather-icon.cloud:before,.minimal-weather-icon.rain:before{content:"";position:absolute;width:11px;height:11px;border:1.7px solid currentColor;border-bottom:0;border-radius:50% 50% 0 0;left:5px;top:-7px;background:transparent}
+.minimal-weather-icon.rain:after{content:"";position:absolute;left:7px;top:17px;width:2px;height:7px;background:currentColor;box-shadow:9px 3px 0 currentColor;transform:skew(-16deg)}
+</style>
+<link rel="manifest" href="manifest.webmanifest"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><link rel="icon" href="icon-192.svg"></head>
+<body>
+<div id="ambientWeather" aria-hidden="true">
+<div class="ambient-sun"></div><div class="ambient-cloud c1"></div><div class="ambient-cloud c2"></div>
+<div class="ambient-rain"></div><div class="ambient-stars"></div></div>
+<div class="app">
+  <div class="top"><div class="brand">☁️ SkyCast <span>Weather</span></div><div style="display:flex;gap:8px"><button class="btn" onclick="toggleTheme()">◐ Theme</button><button class="btn" onclick="useLocation()">📍 My location</button></div></div>
+  <div class="search"><input id="city" placeholder="Search city e.g. Kolkata, Delhi, London" onkeydown="if(event.key==='Enter')searchCity()"><button class="btn" onclick="searchCity()">Search</button></div>
+  <div id="msg" class="msg"></div>
+  <section class="hero">
+    <div class="place" id="place">Kolkata, India</div><div class="sub" id="updated">Loading weather…</div>
+    <div class="mainweather"><div><div class="temp" id="temp">--°</div><div class="condition" id="condition">Please wait</div></div><div class="bigicon" id="icon">🌤️</div></div>
+    <div class="stats">
+      <div class="stat">💧 <span class="label">Humidity</span><b id="humidity">--%</b></div>
+      <div class="stat">💨 <span class="label">Wind</span><b id="wind">-- km/h</b></div>
+      <div class="stat">🌡️ <span class="label">Feels like</span><b id="feels">--°</b></div>
+      <div class="stat">🌧️ <span class="label">Rain chance</span><b id="rainNow">--%</b></div>
+    </div>
+  </section>
+  <div class="section">Hourly forecast</div><div class="hours" id="hours"></div>
+  <div class="section">7-day forecast</div><div class="days" id="days"></div>
+  <div class="section">Weather details</div>
+  <div class="card">
+    <div class="metrics">
+      <div class="metric">🌬️ <span class="label">Wind direction</span><b id="windDir">--</b></div>
+      <div class="metric">👁️ <span class="label">Visibility</span><b id="visibility">-- km</b></div>
+      <div class="metric">☀️ <span class="label">UV index</span><b id="uv">--</b></div>
+      <div class="metric">🌫️ <span class="label">Air quality</span><b id="aqi">--</b></div>
+      <div class="metric">📊 <span class="label">Pressure</span><b id="pressure">-- hPa</b></div>
+      <div class="metric">☁️ <span class="label">Cloud cover</span><b id="cloud">--%</b></div>
+    </div>
+  </div>
+  <div class="section">Temperature trend</div>
+  <div class="card"><canvas id="tempChart" class="chart"></canvas></div>
+  <div class="section">Today at a glance</div>
+  <div class="stats">
+    <div class="stat">🌅 <span class="label">Sunrise</span><b id="sunrise">--</b></div>
+    <div class="stat">🌇 <span class="label">Sunset</span><b id="sunset">--</b></div>
+    <div class="stat">🌧️ <span class="label">Rain today</span><b id="rainDay">--%</b></div>
+    <div class="stat">🌡️ <span class="label">Today's range</span><b id="range">-- / --</b></div>
+  </div>
+  <div class="section">Saved cities</div>
+  <div class="search" id="saved"></div>
+  <div class="footer">SkyCast • Weather intelligence made simple • Data by Open-Meteo</div>
+</div>
+<script>
+const WMO={0:['Clear sky','sun'],1:['Mainly clear','sun'],2:['Partly cloudy','cloud'],3:['Overcast','cloud'],45:['Fog','cloud'],48:['Rime fog','cloud'],51:['Light drizzle','rain'],53:['Drizzle','rain'],55:['Heavy drizzle','rain'],61:['Light rain','rain'],63:['Rain','rain'],65:['Heavy rain','rain'],71:['Light snow','cloud'],73:['Snow','cloud'],75:['Heavy snow','cloud'],80:['Rain showers','rain'],81:['Rain showers','rain'],82:['Heavy showers','rain'],95:['Thunderstorm','rain'],96:['Thunderstorm + hail','rain'],99:['Thunderstorm + hail','rain']};
+const $=id=>document.getElementById(id);
+function weather(code){return WMO[code]||['Weather','cloud']} function icon(cls){return `<span class="minimal-weather-icon ${cls}"></span>`}
+function niceTime(s){return new Date(s).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}
+function niceDay(s){return new Date(s+'T12:00').toLocaleDateString([],{weekday:'short'})}
+function setMsg(s=''){ $('msg').textContent=s }
+
+function toggleTheme(){document.body.classList.toggle('light');localStorage.setItem('skycastTheme',document.body.classList.contains('light')?'light':'dark')}
+if(localStorage.getItem('skycastTheme')==='light')document.body.classList.add('light');
+function saveCity(name,lat,lon){
+ let a=JSON.parse(localStorage.getItem('skycastCities')||'[]');
+ if(!a.some(x=>x.name===name)) a.unshift({name,lat,lon});
+ a=a.slice(0,5); localStorage.setItem('skycastCities',JSON.stringify(a)); renderSaved();
+}
+function renderSaved(){
+ const a=JSON.parse(localStorage.getItem('skycastCities')||'[]');
+ $('saved').innerHTML=a.length?a.map((x,i)=>`<button class="btn" onclick="getWeather(${x.lat},${x.lon},'${x.name.replace(/'/g,"\\'")}')">📍 ${x.name}</button>`).join(''):'<span class="sub">Search a city and it will appear here.</span>';
+}
+
+function drawChart(h,start){
+ const cv=$('tempChart'), box=cv.getBoundingClientRect(), dpr=devicePixelRatio||1;
+ cv.width=box.width*dpr; cv.height=155*dpr; const ctx=cv.getContext('2d');ctx.scale(dpr,dpr);
+ const n=10, vals=h.temperature_2m.slice(Math.max(0,start),Math.max(0,start)+n); if(!vals.length)return;
+ const w=box.width, ht=155, min=Math.min(...vals)-2,max=Math.max(...vals)+2;
+ ctx.clearRect(0,0,w,ht); ctx.lineWidth=3; ctx.strokeStyle=getComputedStyle(document.body).getPropertyValue('--accent').trim()||'#93c5fd';
+ ctx.beginPath(); vals.forEach((v,i)=>{const x=12+i*(w-24)/(vals.length-1||1),y=ht-20-(v-min)/(max-min||1)*(ht-42);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();
+ ctx.fillStyle=getComputedStyle(document.body).getPropertyValue('--text').trim();ctx.font='12px system-ui';
+ vals.forEach((v,i)=>{const x=12+i*(w-24)/(vals.length-1||1),y=ht-20-(v-min)/(max-min||1)*(ht-42);ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill();ctx.fillText(Math.round(v)+'°',x-10,y-10)});
+}
+
+
+function setAmbientWeather(code){
+ const el=$('ambientWeather'); el.className=''; const h=new Date().getHours();
+ if(h<6||h>=18)el.classList.add('night');
+ else if(code>=51&&code<=82)el.classList.add('rainy');
+ else if(code>=2&&code<=48)el.classList.add('cloudy');
+ else el.classList.add('sunny');
+}
+
+async function getWeather(lat,lon,name){
+ setMsg(''); $('updated').innerHTML='<span class="spin">⟳</span> Loading latest forecast…';
+ const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_direction_10m,visibility,surface_pressure,cloud_cover&hourly=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation_probability,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset,uv_index_max&timezone=auto&forecast_days=7`;
+ try{
+  const r=await fetch(url); if(!r.ok) throw new Error('Weather request failed'); const d=await r.json();
+  const ar=await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi&timezone=auto`);
+  const aq=ar.ok?await ar.json():null;
+  const c=d.current, h=d.hourly, day=d.daily, w=weather(c.weather_code); setAmbientWeather(c.weather_code);
+  $('place').textContent=name; $('updated').textContent='Updated '+niceTime(c.time);
+  $('temp').textContent=Math.round(c.temperature_2m)+'°'; $('condition').textContent=w[0]; $('icon').innerHTML=icon(w[1]);
+  $('humidity').textContent=Math.round(c.relative_humidity_2m)+'%'; $('wind').textContent=Math.round(c.wind_speed_10m)+' km/h';
+  $('feels').textContent=Math.round(c.apparent_temperature)+'°';
+  const hi=h.time.indexOf(c.time); $('rainNow').textContent=(hi>=0?h.precipitation_probability[hi]:day.precipitation_probability_max[0])+'%'; $('sunrise').textContent=niceTime(day.sunrise[0]); $('sunset').textContent=niceTime(day.sunset[0]); $('rainDay').textContent=(day.precipitation_probability_max[0]??0)+'%'; $('range').textContent=Math.round(day.temperature_2m_max[0])+'° / '+Math.round(day.temperature_2m_min[0])+'°';
+  const deg=((c.wind_direction_10m%360)+360)%360, dirs=['N','NE','E','SE','S','SW','W','NW']; $('windDir').textContent=dirs[Math.round(deg/45)%8]+' '+Math.round(deg)+'°';
+  $('visibility').textContent=(c.visibility/1000).toFixed(1)+' km'; $('uv').textContent=day.uv_index_max[0]?.toFixed(1)??'--';
+  $('aqi').textContent=aq?.current?.us_aqi!=null?aq.current.us_aqi:'--'; $('pressure').textContent=Math.round(c.surface_pressure)+' hPa'; $('cloud').textContent=Math.round(c.cloud_cover)+'%';
+  drawChart(h,h.time.indexOf(c.time));
+  $('hours').innerHTML=''; const start=Math.max(0,hi); for(let i=start;i<Math.min(start+12,h.time.length);i++){let x=weather(h.weather_code[i]);$('hours').innerHTML+=`<div class="hour"><small>${niceTime(h.time[i])}</small><div class="ico">${icon(x[1])}</div><b>${Math.round(h.temperature_2m[i])}°</b><div class="rain">🌧️ ${h.precipitation_probability[i]??0}%</div></div>`}
+  $('days').innerHTML=''; for(let i=0;i<7;i++){let x=weather(day.weather_code[i]);$('days').innerHTML+=`<div class="day"><b>${i===0?'Today':niceDay(day.time[i])}</b><div class="ico">${icon(x[1])}</div><b>${Math.round(day.temperature_2m_max[i])}°</b> / ${Math.round(day.temperature_2m_min[i])}°<div class="rain">🌧️ ${day.precipitation_probability_max[i]??0}%</div></div>`}
+ }catch(e){setMsg('Could not load weather. Check your internet connection and try again.'); $('updated').textContent='Unable to load forecast';}
+}
+async function searchCity(){
+ const q=$('city').value.trim(); if(!q){setMsg('Enter a city name first.');return}
+ setMsg('Searching…');
+ try{const r=await fetch('https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(q)+'&count=1&language=en&format=json');const d=await r.json();if(!d.results?.length){setMsg('City not found. Try another name.');return}const x=d.results[0]; const nm=`${x.name}${x.country?', '+x.country:''}`; saveCity(nm,x.latitude,x.longitude); getWeather(x.latitude,x.longitude,nm)}
+ catch(e){setMsg('Could not search. Check your internet connection.')}
+}
+function useLocation(){
+ if(!navigator.geolocation){setMsg('Your browser does not support location.');return}
+ setMsg('Requesting your location…');navigator.geolocation.getCurrentPosition(p=>getWeather(p.coords.latitude,p.coords.longitude,'My location'),()=>setMsg('Location permission was denied. You can search for a city instead.'),{enableHighAccuracy:true,timeout:10000});
+}
+renderSaved(); getWeather(22.5726,88.3639,'Kolkata, India');
+</script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}</script></body>
+</html>
